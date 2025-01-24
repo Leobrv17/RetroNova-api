@@ -4,6 +4,9 @@ FROM python:3.9-slim
 # Installer les dépendances
 WORKDIR /app
 
+# Assurez-vous que Python inclut /app dans le PYTHONPATH
+ENV PYTHONPATH=/app
+
 # Copier l'ensemble de l'application dans le conteneur
 COPY . /app/
 
