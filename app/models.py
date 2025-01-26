@@ -15,7 +15,7 @@ class Users(Base):
     first_name = Column(String(255), nullable=True)
     last_name = Column(String(255), nullable=True)
     nb_ticket = Column(Integer, default=0, nullable=False)
-    bar = Column(Boolean, default=False, nullable=True)
+    bar = Column(Boolean, default=False, nullable=False)
 
     __table_args__ = (UniqueConstraint('publique_id', 'firebase_id'),)
 
@@ -56,6 +56,7 @@ class Friends(Base):
     friend_to_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     accept = Column(Boolean, default=False, nullable=False)
     decline = Column(Boolean, default=False, nullable=False)
+    delete = Column(Boolean, default=False, nullable=False)
 
     # Relations
     friend_from = relationship("Users", foreign_keys=[friend_from_id])

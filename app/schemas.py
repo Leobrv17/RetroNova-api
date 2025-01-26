@@ -23,17 +23,22 @@ class UserResponse(UserBase):
 
 # Arcade Machines Schema
 class ArcadeMachineBase(BaseModel):
-    description: Optional[str] = Field(None, max_length=255)
-    localisation: Optional[str] = Field(None, max_length=255)
+    description: Optional[str]
+    localisation: Optional[str]
+    game1_id: UUID
+    game2_id: Optional[UUID]
 
 class ArcadeMachineCreate(ArcadeMachineBase):
+    pass
+
+class ArcadeMachineUpdate(BaseModel):
+    description: Optional[str]
+    localisation: Optional[str]
     game1_id: Optional[UUID]
     game2_id: Optional[UUID]
 
 class ArcadeMachineResponse(ArcadeMachineBase):
     id: UUID
-    game1_id: Optional[UUID]
-    game2_id: Optional[UUID]
 
     class Config:
         orm_mode = True
@@ -41,12 +46,17 @@ class ArcadeMachineResponse(ArcadeMachineBase):
 
 # Games Schema
 class GameBase(BaseModel):
-    name: str = Field(..., max_length=255)
-    description: Optional[str] = Field(None, max_length=255)
-    nb_max_player: Optional[int]
+    name: str
+    description: Optional[str] = None
+    nb_max_player: int
 
 class GameCreate(GameBase):
     pass
+
+class GameUpdate(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+    nb_max_player: Optional[int]
 
 class GameResponse(GameBase):
     id: UUID
@@ -56,16 +66,22 @@ class GameResponse(GameBase):
 
 
 # Friends Schema
-class FriendBase(BaseModel):
+class FriendsBase(BaseModel):
     friend_from_id: UUID
     friend_to_id: UUID
-    accept: Optional[bool] = Field(False)
-    decline: Optional[bool] = Field(False)
+    accept: bool = False
+    decline: bool = False
+    delete: bool = False
 
-class FriendCreate(FriendBase):
+class FriendsCreate(FriendsBase):
     pass
 
-class FriendResponse(FriendBase):
+class FriendsUpdate(BaseModel):
+    accept: bool = None
+    decline: bool = None
+    delete: bool = None
+
+class FriendsResponse(FriendsBase):
     id: UUID
 
     class Config:
@@ -82,12 +98,16 @@ class PaymentBase(BaseModel):
 class PaymentCreate(PaymentBase):
     pass
 
+class PaymentUpdate(BaseModel):
+    session_stripe_token: Optional[str]
+    amount: Optional[int]
+    nb_ticket: Optional[int]
+
 class PaymentResponse(PaymentBase):
     id: UUID
 
     class Config:
         orm_mode = True
-
 
 # Parties Schema
 class PartyBase(BaseModel):
@@ -95,16 +115,25 @@ class PartyBase(BaseModel):
     player2_id: UUID
     game_id: UUID
     machine_id: UUID
-    total_score: Optional[int]
-    p1_score: Optional[int]
-    p2_score: Optional[int]
-    password: Optional[int]
-    done: Optional[bool] = Field(False)
-    cancel: Optional[bool] = Field(False)
-    bar: Optional[bool]
+    total_score: Optional[int] = None
+    p1_score: Optional[int] = None
+    p2_score: Optional[int] = None
+    password: Optional[int] = None
+    done: bool = False
+    cancel: bool = False
+    bar: Optional[bool] = None
 
 class PartyCreate(PartyBase):
     pass
+
+class PartyUpdate(BaseModel):
+    total_score: Optional[int] = None
+    p1_score: Optional[int] = None
+    p2_score: Optional[int] = None
+    password: Optional[int] = None
+    done: Optional[bool] = False
+    cancel: Optional[bool] = False
+    bar: Optional[bool] = None
 
 class PartyResponse(PartyBase):
     id: UUID
