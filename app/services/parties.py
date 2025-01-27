@@ -6,6 +6,19 @@ from fastapi import HTTPException
 
 
 def create_party_service(db: Session, party: PartyCreate):
+    """
+    Creates a new party record in the database.
+
+    Args:
+        db (Session): Database session to interact with the database.
+        party (PartyCreate): The party data to create a new party.
+
+    Returns:
+        Parties: The newly created party record.
+
+    Notes:
+        This function adds a new party to the database and commits the transaction.
+    """
     new_party = Parties(**party.dict())
     db.add(new_party)
     db.commit()
@@ -13,22 +26,62 @@ def create_party_service(db: Session, party: PartyCreate):
     return new_party
 
 
+
 def get_all_parties_service(db: Session):
+    """
+    Retrieves all party records from the database.
+
+    Args:
+        db (Session): Database session for querying party records.
+
+    Returns:
+        List[Parties]: A list of all party records in the database.
+    """
     return db.query(Parties).all()
 
 
+
 def get_party_by_id_service(db: Session, party_id: UUID):
+    """
+    Retrieves a specific party by its unique ID.
+
+    Args:
+        db (Session): Database session for querying party records.
+        party_id (UUID): The unique identifier of the party to retrieve.
+
+    Returns:
+        Parties: The party corresponding to the provided ID.
+
+    Raises:
+        HTTPException: If the party with the given ID is not found (404 status code).
+    """
     party = db.query(Parties).filter(Parties.id == party_id).first()
     if not party:
         raise HTTPException(status_code=404, detail="Party not found")
     return party
 
 
+
 def update_party_service(db: Session, party_id: UUID, party_update: PartyUpdate):
+    """
+    Updates the details of an existing party record.
+
+    Args:
+        db (Session): Database session for interacting with the database.
+        party_id (UUID): The unique identifier of the party to update.
+        party_update (PartyUpdate): The new data to update the party record with.
+
+    Returns:
+        Parties: The updated party record.
+
+    Raises:
+        HTTPException: If the party with the given ID is not found (404 status code).
+    """
     party = db.query(Parties).filter(Parties.id == party_id).first()
     if not party:
         raise HTTPException(status_code=404, detail="Party not found")
 
+    # Update the party fields with the new data
     for key, value in party_update.dict(exclude_unset=True).items():
         setattr(party, key, value)
 
@@ -38,9 +91,24 @@ def update_party_service(db: Session, party_id: UUID, party_update: PartyUpdate)
 
 
 def delete_party_service(db: Session, party_id: UUID):
+    """
+    Deletes a party record from the database.
+
+    Args:
+        db (Session): Database session for interacting with the database.
+        party_id (UUID): The unique identifier of the party to delete.
+
+    Returns:
+        dict: A success message upon successful deletion.
+
+    Raises:
+        HTTPException: If the party with the given ID is not found (404 status code).
+    """
     party = db.query(Parties).filter(Parties.id == party_id).first()
     if not party:
         raise HTTPException(status_code=404, detail="Party not found")
+
     db.delete(party)
     db.commit()
     return {"message": "Party deleted successfully"}
+
