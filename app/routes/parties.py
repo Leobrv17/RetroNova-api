@@ -13,22 +13,22 @@ from uuid import UUID
 
 router = APIRouter()
 
-@router.post("/", response_model=PartyResponse)
+@router.post("/", response_model=PartyResponse, tags=["Parties"], name="Create Parties")
 def create_party(party: PartyCreate, db: Session = Depends(get_db)):
     return create_party_service(db, party)
 
-@router.get("/", response_model=list[PartyResponse])
+@router.get("/", response_model=list[PartyResponse], tags=["Parties"], name="Get all Parties")
 def get_all_parties(db: Session = Depends(get_db)):
     return get_all_parties_service(db)
 
-@router.get("/{party_id}", response_model=PartyResponse)
+@router.get("/{party_id}", response_model=PartyResponse, tags=["Parties"], name="Get Parties By Id")
 def get_party_by_id(party_id: UUID, db: Session = Depends(get_db)):
     return get_party_by_id_service(db, party_id)
 
-@router.put("/{party_id}", response_model=PartyResponse)
+@router.put("/{party_id}", response_model=PartyResponse, tags=["Parties"], name="Update Parties")
 def update_party(party_id: UUID, party: PartyUpdate, db: Session = Depends(get_db)):
     return update_party_service(db, party_id, party)
 
-@router.delete("/{party_id}")
+@router.delete("/{party_id}", tags=["Parties"], name="Delete Parties")
 def delete_party(party_id: UUID, db: Session = Depends(get_db)):
     return delete_party_service(db, party_id)

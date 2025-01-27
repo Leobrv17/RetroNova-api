@@ -13,22 +13,22 @@ from uuid import UUID
 
 router = APIRouter()
 
-@router.post("/", response_model=GameResponse)
+@router.post("/", response_model=GameResponse, tags=["Games"],name="Create Games")
 def create_game(game: GameCreate, db: Session = Depends(get_db)):
     return create_game_service(db, game)
 
-@router.get("/", response_model=list[GameResponse])
+@router.get("/", response_model=list[GameResponse], tags=["Games"], name="Get Games")
 def get_all_games(db: Session = Depends(get_db)):
     return get_all_games_service(db)
 
-@router.get("/{game_id}", response_model=GameResponse)
+@router.get("/{game_id}", response_model=GameResponse, tags=["Games"], name="Get Games by id")
 def get_game_by_id(game_id: UUID, db: Session = Depends(get_db)):
     return get_game_by_id_service(db, game_id)
 
-@router.put("/{game_id}", response_model=GameResponse)
+@router.put("/{game_id}", response_model=GameResponse, tags=["Games"], name="Update Games")
 def update_game(game_id: UUID, game: GameUpdate, db: Session = Depends(get_db)):
     return update_game_service(db, game_id, game)
 
-@router.delete("/{game_id}")
+@router.delete("/{game_id}", tags=["Games"], name="Delete Games")
 def delete_game(game_id: UUID, db: Session = Depends(get_db)):
     return delete_game_service(db, game_id)
