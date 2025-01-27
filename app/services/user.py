@@ -30,7 +30,7 @@ def generate_unique_id(db: Session):
             return new_id
 
 
-def create_user(db: Session, user: UserCreate):
+def create_user_service(db: Session, user: UserCreate):
     """
     Creates a new user in the database with a unique public ID.
 
@@ -52,7 +52,7 @@ def create_user(db: Session, user: UserCreate):
     return db_user
 
 
-def get_users(db: Session) -> List[Users]:
+def get_users_service(db: Session) -> List[Users]:
     """
     Returns a list of all users in the database.
 
@@ -65,7 +65,7 @@ def get_users(db: Session) -> List[Users]:
     return db.query(Users).all()
 
 
-def get_user_by_id(db: Session, user_id: UUID) -> Users:
+def get_user_by_id_service(db: Session, user_id: UUID) -> Users:
     """
     Returns a specific user by their unique ID.
 

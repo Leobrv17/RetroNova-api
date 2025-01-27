@@ -5,7 +5,7 @@ from data_base import get_db
 from schemas import FriendsCreate, FriendsResponse, FriendsUpdate
 from services.friends import (
     create_friend_service,
-    get_friend_service,
+    get_friend_by_id_service,
     update_friend_service,
     delete_friend_service,
     get_all_friends_service
@@ -51,7 +51,7 @@ def get_all_friends(db: Session = Depends(get_db)):
 
 
 @router.get("/{friend_id}", response_model=FriendsResponse, tags=["Friends"], name="Get Friend by id")
-def get_friend(friend_id: UUID, db: Session = Depends(get_db)):
+def get_friend_by_id(friend_id: UUID, db: Session = Depends(get_db)):
     """
     Endpoint to retrieve a specific friendship by its unique ID.
 

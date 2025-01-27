@@ -35,7 +35,7 @@ def create_friend_service(db: Session, friend_data: FriendsCreate):
     return new_friend
 
 
-def get_friend_service(db: Session, friend_id: UUID):
+def get_friend_by_id_service(db: Session, friend_id: UUID):
     """
     Retrieves a specific friendship by its unique ID.
 
