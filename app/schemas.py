@@ -10,12 +10,12 @@ class UserBase(BaseModel):
     bar: Optional[bool] = Field(False)
 
 class UserCreate(UserBase):
-    firebase_id: UUID
+    firebase_id: str
 
 class UserResponse(UserBase):
     id: UUID
     publique_id: str
-    firebase_id: UUID
+    firebase_id: str
 
     class Config:
         orm_mode = True

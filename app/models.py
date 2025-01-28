@@ -11,7 +11,7 @@ class Users(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
     publique_id = Column(String(12), unique=True, nullable=False)
-    firebase_id = Column(UUID(as_uuid=True), unique=True, nullable=False)
+    firebase_id = Column(String(28), unique=True, nullable=False)
     first_name = Column(String(255), nullable=True)
     last_name = Column(String(255), nullable=True)
     nb_ticket = Column(Integer, default=0, nullable=False)
