@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models import Games
-from schemas import GameCreate, GameUpdate
+from app.models import Games
+from app.schemas import GameCreate, GameUpdate
 from uuid import UUID
 from fastapi import HTTPException
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from data_base import get_db
-from schemas import GameCreate, GameResponse, GameUpdate
-from services.games import (
+from app.data_base import get_db
+from app.schemas import GameCreate, GameResponse, GameUpdate
+from app.services.games import (
     create_game_service,
     get_all_games_service,
     get_game_by_id_service,

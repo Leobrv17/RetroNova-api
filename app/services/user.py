@@ -2,8 +2,8 @@ from uuid import UUID
 import uuid
 from sqlalchemy.orm import Session
 from typing import List
-from models import Users
-from schemas import  UserCreate
+from app.models import Users
+from app.schemas import  UserCreate
 from fastapi import HTTPException
 
 

@@ -2,21 +2,21 @@
 FROM python:3.9-slim
 
 # Installer les dépendances
-WORKDIR /app
+WORKDIR /application
 
 # Assurez-vous que Python inclut /app dans le PYTHONPATH
-ENV PYTHONPATH=/app
+#ENV PYTHONPATH=/app
 
 # Copier l'ensemble de l'application dans le conteneur
-COPY . /app/
+COPY . /application/
 
 # Installer les dépendances depuis requirements.txt
 RUN pip install -r requirements.txt
 
 # Définir PYTHONPATH pour que Python reconnaisse le module 'app'
-ENV PYTHONPATH=/app:$PYTHONPATH
+# ENV PYTHONPATH=/app:$PYTHONPATH
 
 EXPOSE 8000
 # Commande d'exécution par défaut
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]
+CMD ["python", "prod.py"]
 

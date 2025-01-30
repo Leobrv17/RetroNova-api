@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from data_base import get_db
-from schemas import PartyCreate, PartyResponse, PartyUpdate
-from services.parties import (
+from app.data_base import get_db
+from app.schemas import PartyCreate, PartyResponse, PartyUpdate
+from app.services.parties import (
     create_party_service,
     get_all_parties_service,
     get_party_by_id_service,

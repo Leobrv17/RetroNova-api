@@ -21,7 +21,6 @@ services:
 
   retronova-app:
     build:
-      context: app
       dockerfile: Dockerfile
     container_name: retronova-app
     environment:
@@ -34,7 +33,7 @@ services:
       retronova-db:
         condition: service_healthy
     ports:
-      - '8003:8003'
+      - '8000:8000'
     volumes:
       - ./app:/app
     networks:

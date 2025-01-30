@@ -1,7 +1,7 @@
-import uvicorn
+
 from fastapi import FastAPI
-from data_base import Base, engine
-from routes import user, friends, payments, games, arcadeMachines, parties
+from app.data_base import Base, engine
+from app.routes import user, friends, payments, games, arcadeMachines, parties
 from starlette.middleware.cors import CORSMiddleware
 
 # Créer toutes les tables (à utiliser uniquement pendant le développement)
@@ -37,6 +37,3 @@ app.include_router(games.router, prefix="/games", tags=["Games"])
 app.include_router(arcadeMachines.router, prefix="/arcade_machines", tags=["Arcade_Machines"])
 
 app.include_router(parties.router, prefix="/parties", tags=["Parties"])
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8003, reload=True)

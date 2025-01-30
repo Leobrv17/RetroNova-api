@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models import Payments
-from schemas import PaymentCreate, PaymentUpdate
+from app.models import Payments
+from app.schemas import PaymentCreate, PaymentUpdate
 from uuid import UUID
 from fastapi import HTTPException
 

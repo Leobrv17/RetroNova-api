@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from uuid import UUID
-from models import Friends
-from schemas import FriendsCreate, FriendsUpdate
+from app.models import Friends
+from app.schemas import FriendsCreate, FriendsUpdate
 
 def create_friend_service(db: Session, friend_data: FriendsCreate):
     """

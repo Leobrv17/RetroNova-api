@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from uuid import UUID
-from data_base import get_db
-from schemas import FriendsCreate, FriendsResponse, FriendsUpdate
-from services.friends import (
+from app.data_base import get_db
+from app.schemas import FriendsCreate, FriendsResponse, FriendsUpdate
+from app.services.friends import (
     create_friend_service,
     get_friend_by_id_service,
     update_friend_service,

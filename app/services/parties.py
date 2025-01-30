@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models import Parties
-from schemas import PartyCreate, PartyUpdate
+from app.models import Parties
+from app.schemas import PartyCreate, PartyUpdate
 from uuid import UUID
 from fastapi import HTTPException
 

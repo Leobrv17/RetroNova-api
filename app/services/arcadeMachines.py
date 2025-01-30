@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models import ArcadeMachines
-from schemas import ArcadeMachineCreate, ArcadeMachineUpdate
+from app.models import ArcadeMachines
+from app.schemas import ArcadeMachineCreate, ArcadeMachineUpdate
 from uuid import UUID
 from fastapi import HTTPException
 

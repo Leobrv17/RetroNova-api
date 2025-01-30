@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from data_base import get_db
-from schemas import ArcadeMachineCreate, ArcadeMachineResponse, ArcadeMachineUpdate
-from services.arcadeMachines import (
+from app.data_base import get_db
+from app.schemas import ArcadeMachineCreate, ArcadeMachineResponse, ArcadeMachineUpdate
+from app.services.arcadeMachines import (
     create_arcade_machine_service,
     get_all_arcade_machines_service,
     get_arcade_machine_by_id_service,
