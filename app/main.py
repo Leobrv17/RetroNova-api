@@ -15,6 +15,7 @@ origins = [
     "http://localhost",  # Permet les requêtes depuis localhost
     "http://localhost:3000",  # Exemple pour une application frontend React qui tourne sur le port 3000
     "https://ton-domaine.com",  # Ajoute d'autres domaines si nécessaire
+    "http://localhost:5173",
 ]
 
 # Ajouter le middleware CORS
