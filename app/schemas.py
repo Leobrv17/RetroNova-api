@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from uuid import UUID
 
@@ -17,8 +17,8 @@ class UserResponse(UserBase):
     publique_id: str
     firebase_id: str
 
-    class Config:
-        orm_mode = True
+    class ConfigDict :
+        model_config = ConfigDict(from_attributes = True)
 
 
 # Arcade Machines Schema
@@ -40,8 +40,8 @@ class ArcadeMachineUpdate(BaseModel):
 class ArcadeMachineResponse(ArcadeMachineBase):
     id: UUID
 
-    class Config:
-        orm_mode = True
+    class ConfigDict :
+        model_config = ConfigDict(from_attributes = True)
 
 
 # Games Schema
@@ -61,8 +61,8 @@ class GameUpdate(BaseModel):
 class GameResponse(GameBase):
     id: UUID
 
-    class Config:
-        orm_mode = True
+    class ConfigDict :
+        model_config = ConfigDict(from_attributes = True)
 
 
 # Friends Schema
@@ -84,8 +84,8 @@ class FriendsUpdate(BaseModel):
 class FriendsResponse(FriendsBase):
     id: UUID
 
-    class Config:
-        orm_mode = True
+    class ConfigDict :
+        model_config = ConfigDict(from_attributes = True)
 
 
 # Payments Schema
@@ -106,8 +106,8 @@ class PaymentUpdate(BaseModel):
 class PaymentResponse(PaymentBase):
     id: UUID
 
-    class Config:
-        orm_mode = True
+    class ConfigDict :
+        model_config = ConfigDict(from_attributes = True)
 
 # Parties Schema
 class PartyBase(BaseModel):
@@ -138,5 +138,5 @@ class PartyUpdate(BaseModel):
 class PartyResponse(PartyBase):
     id: UUID
 
-    class Config:
-        orm_mode = True
+    class ConfigDict :
+        model_config = ConfigDict(from_attributes = True)

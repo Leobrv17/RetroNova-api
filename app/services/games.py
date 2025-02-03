@@ -19,7 +19,7 @@ def create_game_service(db: Session, game: GameCreate):
     Notes:
         This function adds a new game to the database and commits the transaction.
     """
-    new_game = Games(**game.dict())
+    new_game = Games(**game.model_dump())
     db.add(new_game)
     db.commit()
     db.refresh(new_game)

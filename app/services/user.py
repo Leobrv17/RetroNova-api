@@ -45,7 +45,7 @@ def create_user_service(db: Session, user: UserCreate):
         This function generates a unique public ID and then inserts the new user into the database.
     """
     unique_pub_id = generate_unique_id(db)
-    db_user = Users(**user.dict(), publique_id=unique_pub_id)
+    db_user = Users(**user.model_dump(), publique_id=unique_pub_id)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

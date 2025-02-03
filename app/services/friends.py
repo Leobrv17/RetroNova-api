@@ -28,7 +28,7 @@ def create_friend_service(db: Session, friend_data: FriendsCreate):
         raise HTTPException(status_code=400, detail="Friendship already exists")
 
     # Create the new friendship relationship
-    new_friend = Friends(**friend_data.dict())
+    new_friend = Friends(**friend_data.model_dump())
     db.add(new_friend)
     db.commit()
     db.refresh(new_friend)

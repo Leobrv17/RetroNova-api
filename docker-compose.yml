@@ -39,6 +39,21 @@ services:
     networks:
       - retronova-network
 
+  test:
+    build: .
+    command: pytest tests/  # Commande pour exécuter tes tests
+    container_name: retronova-test
+    volumes:
+      - .:/app  # Montage de ton code source pour les tests
+    environment:
+      - ENV=test  # Variable d'environnement pour les tests
+    depends_on:
+      - retronova-db      # Le test dépend de la base de données
+      - retronova-app
+    networks:
+      - retronova-network
+
+
 volumes:
   pgdata:
 

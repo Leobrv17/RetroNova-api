@@ -19,7 +19,7 @@ def create_payment_service(db: Session, payment: PaymentCreate):
     Notes:
         This function adds a new payment to the database and commits the transaction.
     """
-    new_payment = Payments(**payment.dict())
+    new_payment = Payments(**payment.model_dump())
     db.add(new_payment)
     db.commit()
     db.refresh(new_payment)

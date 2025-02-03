@@ -16,7 +16,7 @@ def create_arcade_machine_service(db: Session, machine: ArcadeMachineCreate):
     Returns:
         ArcadeMachines: The newly created arcade machine record.
     """
-    new_machine = ArcadeMachines(**machine.dict())
+    new_machine = ArcadeMachines(**machine.model_dump())
     db.add(new_machine)
     db.commit()
     db.refresh(new_machine)

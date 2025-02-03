@@ -19,7 +19,7 @@ def create_party_service(db: Session, party: PartyCreate):
     Notes:
         This function adds a new party to the database and commits the transaction.
     """
-    new_party = Parties(**party.dict())
+    new_party = Parties(**party.model_dump())
     db.add(new_party)
     db.commit()
     db.refresh(new_party)
