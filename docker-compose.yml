@@ -10,7 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,11 +25,7 @@ services:
       dockerfile: Dockerfile
     container_name: retronova-app
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: retronova-db
-      POSTGRES_PORT: 5432
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       retronova-db:
         condition: service_healthy
@@ -40,19 +36,14 @@ services:
     networks:
       - retronova-network
 
-#  test:
-#    build: .
-#    command: pytest tests/  # Commande pour exécuter tes tests
-#    container_name: retronova-test
-#    volumes:
-#      - .:/app  # Montage de ton code source pour les tests
-#    environment:
-#      - ENV=test  # Variable d'environnement pour les tests
-#    depends_on:
-#      - retronova-db      # Le test dépend de la base de données
-#      - retronova-app
-#    networks:
-#      - retronova-network
+  test:
+    build: .
+    command: ["pytest", "--cov=app", "--cov-report=term-missing", "tests/"] # Commande pour exécuter tes tests
+    container_name: retronova-test
+    environment:
+      - DATABASE_URL=sqlite:///./test.db
+    volumes:
+      - .:/app
 
 
 volumes:

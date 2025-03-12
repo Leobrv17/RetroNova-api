@@ -4,10 +4,12 @@ from app.main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+import os
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/test_db"
+# Utilisation de SQLite avec un fichier test.db
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -18,7 +20,7 @@ def test_db():
     db = SessionLocal()
     yield db
     db.close()
-    # Droper les tables uniquement de la base de données de test
+    # Supprimer les tables après les tests
     Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="module")

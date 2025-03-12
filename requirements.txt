@@ -7,3 +7,4 @@ uuid
 starlette
 pytest
 httpx
+pytest-cov

@@ -1,20 +1,29 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-# Configuration de la base de données
-DATABASE_URL="postgresql://postgres:postgres@retronova-db:5432/postgres"
-
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set in the environment variables")
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Dépendance pour récupérer une session de la base de données
+def get_database_url():
+    """Récupère l'URL de la base de données, sinon lève une erreur."""
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        raise ValueError("DATABASE_URL is not set in the environment variables")
+    return db_url
+
+def create_engine_and_session(db_url=None):
+    """
+    Initialise le moteur et la session SQLAlchemy.
+    Permet d'injecter une URL spécifique pour les tests.
+    """
+    engine = create_engine(db_url or get_database_url())
+    return engine, sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Initialisation de la BDD
+engine, SessionLocal = create_engine_and_session()
+
 def get_db():
+    """Dépendance pour récupérer une session de la base de données."""
     db = SessionLocal()
     try:
         yield db
