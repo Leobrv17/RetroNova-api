@@ -5,11 +5,12 @@ import os
 Base = declarative_base()
 
 def get_database_url():
-    """Récupère l'URL de la base de données, sinon lève une erreur."""
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
-        raise ValueError("DATABASE_URL is not set in the environment variables")
+        raise ValueError("DATABASE_URL is not set in the environment variables")  # ← Ligne 11 qui pose problème
     return db_url
+
+DATABASE_URL = get_database_url()
 
 def create_engine_and_session(db_url=None):
     """

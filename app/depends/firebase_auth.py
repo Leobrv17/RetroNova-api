@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from firebase_admin import auth, credentials
 import firebase_admin
 # Firebase Admin Setup
-cred = credentials.Certificate("path/to/your/firebase-adminsdk.json")
+cred = credentials.Certificate("./retronova-df56b-firebase-adminsdk-8qab9-2a10e2588c.json")
 firebase_admin.initialize_app(cred)
 
 security = HTTPBearer()
