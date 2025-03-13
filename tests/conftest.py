@@ -4,6 +4,7 @@ from app.main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+import os
 
 # Utilisation de SQLite avec un fichier test.db
 DATABASE_URL = "sqlite:///./test.db"
@@ -21,6 +22,7 @@ def test_db():
     db.close()
     # Supprimer les tables après les tests
     Base.metadata.drop_all(bind=engine)
+
 
 @pytest.fixture(scope="module")
 def client():

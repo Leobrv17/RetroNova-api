@@ -38,7 +38,7 @@ services:
 
   test:
     build: .
-    command: ["pytest", "--cov=app", "--cov-report=term-missing", "tests/"] # Commande pour exécuter tes tests
+    command: ["pytest","-v", "--cov=app", "--cov-report=term-missing", "tests/"] # Commande pour exécuter tes tests
     container_name: retronova-test
     environment:
       - DATABASE_URL=sqlite:///./test.db

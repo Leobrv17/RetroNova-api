@@ -32,10 +32,10 @@ class ArcadeMachineCreate(ArcadeMachineBase):
     pass
 
 class ArcadeMachineUpdate(BaseModel):
-    description: Optional[str]
-    localisation: Optional[str]
-    game1_id: Optional[UUID]
-    game2_id: Optional[UUID]
+    description: Optional[str] = None
+    localisation: Optional[str] = None
+    game1_id: Optional[UUID] = None
+    game2_id: Optional[UUID] = None
 
 class ArcadeMachineResponse(ArcadeMachineBase):
     id: UUID

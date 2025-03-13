@@ -66,7 +66,7 @@ def get_friend_by_id(friend_id: UUID, db: Session = Depends(get_db)):
         HTTPException:
             - 404 status code if the friendship is not found.
     """
-    return get_friend_service(db, friend_id)
+    return get_friend_by_id_service(db, friend_id)
 
 
 

@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import HTTPException
 
 
+
 def create_arcade_machine_service(db: Session, machine: ArcadeMachineCreate):
     """
     Creates a new arcade machine record in the database.
@@ -108,3 +109,4 @@ def delete_arcade_machine_service(db: Session, machine_id: UUID):
     db.delete(machine)
     db.commit()
     return {"message": "Arcade machine deleted successfully"}
+
