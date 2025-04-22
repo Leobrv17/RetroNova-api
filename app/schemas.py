@@ -23,15 +23,20 @@ class UserResponse(UserBase):
 
 # Arcade Machines Schema
 class ArcadeMachineBase(BaseModel):
-    description: Optional[str]
-    localisation: Optional[str]
-    game1_id: UUID
-    game2_id: Optional[UUID]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    localisation: Optional[str] = None
+    game1_id: Optional[UUID] = None
+    game2_id: Optional[UUID] = None
 
 class ArcadeMachineCreate(ArcadeMachineBase):
-    pass
+    name: str
+    nb_player_min: int
+    nb_player_max: int
+    game1_id: UUID
 
 class ArcadeMachineUpdate(BaseModel):
+    name: Optional[str] = None
     description: Optional[str] = None
     localisation: Optional[str] = None
     game1_id: Optional[UUID] = None
@@ -40,8 +45,8 @@ class ArcadeMachineUpdate(BaseModel):
 class ArcadeMachineResponse(ArcadeMachineBase):
     id: UUID
 
-    class ConfigDict :
-        model_config = ConfigDict(from_attributes = True)
+    class Config:
+        from_attributes = True
 
 
 # Games Schema

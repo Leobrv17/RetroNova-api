@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.data_base import get_db
 from app.schemas import ArcadeMachineCreate, ArcadeMachineResponse, ArcadeMachineUpdate
@@ -9,6 +9,7 @@ from app.services.arcadeMachines import (
     update_arcade_machine_service,
     delete_arcade_machine_service,
 )
+from app.models import ArcadeMachines
 from uuid import UUID
 
 router = APIRouter()
@@ -107,3 +108,16 @@ def delete_arcade_machine(machine_id: UUID, db: Session = Depends(get_db)):
     """
     return delete_arcade_machine_service(db, machine_id)
 
+
+@router.get("/{machine_id}/games", tags=["Arcade_Machines"], name="Get Games by Arcade Machine ID")
+def get_games_by_arcade_id(machine_id: UUID, db: Session = Depends(get_db)):
+    arcade = db.query(ArcadeMachines).filter(ArcadeMachines.id == machine_id).first()
+
+    if not arcade:
+        raise HTTPException(status_code=404, detail="Arcade machine not found")
+
+    return {
+        "name" : arcade.name if arcade.name else None,
+        "game1": arcade.game1.name if arcade.game1 else None,
+        "game2": arcade.game2.name if arcade.game2 else None
+    }
