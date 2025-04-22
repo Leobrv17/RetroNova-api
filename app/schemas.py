@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, validator
 from typing import Optional
 from uuid import UUID
+from datetime import datetime
+import re
 
 # Users Schema
 class UserBase(BaseModel):
@@ -147,3 +149,53 @@ class PartyResponse(PartyBase):
 
     class ConfigDict :
         model_config = ConfigDict(from_attributes = True)
+
+#Promo code
+class PromoCodeBase(BaseModel):
+    code: str = Field(..., min_length=6, max_length=12)
+    nb_parties: int = Field(1, gt=0)
+    is_active: bool = Field(True)
+    expires_at: Optional[datetime] = Field(None)
+    max_uses: Optional[int] = Field(None, gt=0)
+
+    @validator('code')
+    def validate_code(cls, v):
+        if not re.match(r'^[A-Za-z0-9]+$', v):
+            raise ValueError('Le code promo doit être alphanumérique (lettres et chiffres uniquement)')
+        return v.upper()  # Convertir en majuscules pour la cohérence
+
+class PromoCodeCreate(PromoCodeBase):
+    pass
+
+class PromoCodeUpdate(BaseModel):
+    code: Optional[str] = Field(None, min_length=6, max_length=12)
+    nb_parties: Optional[int] = Field(None, gt=0)
+    is_active: Optional[bool] = None
+    expires_at: Optional[datetime] = None
+    max_uses: Optional[int] = Field(None, gt=0)
+
+    @validator('code')
+    def validate_code(cls, v):
+        if v is None:
+            return v
+        if not re.match(r'^[A-Za-z0-9]+$', v):
+            raise ValueError('Le code promo doit être alphanumérique (lettres et chiffres uniquement)')
+        return v.upper()  # Convertir en majuscules pour la cohérence
+
+class PromoCodeResponse(PromoCodeBase):
+    id: UUID
+    created_at: datetime
+    used_count: int
+
+    class ConfigDict:
+        model_config = ConfigDict(from_attributes=True)
+
+# Pour la vérification/utilisation du code promo
+class PromoCodeUse(BaseModel):
+    code: str = Field(..., min_length=6, max_length=12)
+    user_id: UUID
+
+class PromoCodeUsageResponse(BaseModel):
+    success: bool
+    message: str
+    nb_parties: Optional[int] = None
