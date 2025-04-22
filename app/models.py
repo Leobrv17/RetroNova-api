@@ -1,13 +1,31 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, DateTime, event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from datetime import datetime
 import uuid
-
+from datetime import datetime
+from sqlalchemy.ext.declarative import declared_attr
 from app.data_base import Base
 
 
-class Users(Base):
+class BaseModel:
+    """
+    Modèle de base pour toutes les tables de la base de données.
+    Inclut des champs pour suivre la création, la mise à jour et la suppression logique.
+    """
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    deleted_at = Column(DateTime, nullable=True)
+    is_deleted = Column(Boolean, default=False, nullable=False)
+
+    @declared_attr
+    def __tablename__(cls):
+        """
+        Génère automatiquement le nom de la table basé sur le nom de la classe.
+        """
+        return cls.__name__.lower()
+
+
+class Users(Base, BaseModel):
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
@@ -25,7 +43,7 @@ class Users(Base):
 
 
 # Table Games
-class Games(Base):
+class Games(Base, BaseModel):
     __tablename__ = "games"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
@@ -36,7 +54,7 @@ class Games(Base):
 
 
 # Table Arcade_machines
-class ArcadeMachines(Base):
+class ArcadeMachines(Base, BaseModel):
     __tablename__ = "arcade_machines"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
@@ -51,7 +69,7 @@ class ArcadeMachines(Base):
 
 
 # Table Friends
-class Friends(Base):
+class Friends(Base, BaseModel):
     __tablename__ = "friends"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
@@ -71,7 +89,7 @@ class Friends(Base):
 
 
 # Table Payments
-class Payments(Base):
+class Payments(Base, BaseModel):
     __tablename__ = "payments"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
@@ -85,7 +103,7 @@ class Payments(Base):
 
 
 # Table Parties
-class Parties(Base):
+class Parties(Base, BaseModel):
     __tablename__ = "parties"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
@@ -107,7 +125,7 @@ class Parties(Base):
     game = relationship("Games")
     machine = relationship("ArcadeMachines")
 
-class PromoCodes(Base):
+class PromoCodes(Base, BaseModel):
     __tablename__ = "promo_codes"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
