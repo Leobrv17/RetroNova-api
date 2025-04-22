@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from datetime import datetime
 import uuid
 
 from app.data_base import Base
@@ -105,3 +106,15 @@ class Parties(Base):
     player2 = relationship("Users", foreign_keys=[player2_id])
     game = relationship("Games")
     machine = relationship("ArcadeMachines")
+
+class PromoCodes(Base):
+    __tablename__ = "promo_codes"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    code = Column(String(12), unique=True, nullable=False)
+    nb_parties = Column(Integer, default=1, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=True)
+    used_count = Column(Integer, default=0, nullable=False)
+    max_uses = Column(Integer, nullable=True)
