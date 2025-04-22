@@ -3,6 +3,8 @@ from fastapi import HTTPException
 from uuid import UUID
 from app.models import Friends
 from app.schemas import FriendsCreate, FriendsUpdate
+from app.utils.db_utils import filter_deleted, soft_delete
+
 
 def create_friend_service(db: Session, friend_data: FriendsCreate):
     """
@@ -19,13 +21,23 @@ def create_friend_service(db: Session, friend_data: FriendsCreate):
         HTTPException: If the friendship already exists (400 status code).
     """
     # Check if the friendship already exists
-    existing_friend = db.query(Friends).filter(
+    query = db.query(Friends).filter(
         Friends.friend_from_id == friend_data.friend_from_id,
         Friends.friend_to_id == friend_data.friend_to_id
-    ).first()
+    )
+    query = filter_deleted(query, True)  # Inclure même les amitiés supprimées pour détecter les doublons
+    existing_friend = query.first()
 
     if existing_friend:
-        raise HTTPException(status_code=400, detail="Friendship already exists")
+        if existing_friend.is_deleted:
+            # Si l'amitié existe mais est supprimée, on la restaure
+            existing_friend.is_deleted = False
+            existing_friend.deleted_at = None
+            db.commit()
+            db.refresh(existing_friend)
+            return existing_friend
+        else:
+            raise HTTPException(status_code=400, detail="Friendship already exists")
 
     # Create the new friendship relationship
     new_friend = Friends(**friend_data.model_dump())
@@ -35,13 +47,14 @@ def create_friend_service(db: Session, friend_data: FriendsCreate):
     return new_friend
 
 
-def get_friend_by_id_service(db: Session, friend_id: UUID):
+def get_friend_by_id_service(db: Session, friend_id: UUID, include_deleted: bool = False):
     """
     Retrieves a specific friendship by its unique ID.
 
     Args:
         db (Session): Database session for querying friendship records.
         friend_id (UUID): The unique identifier of the friendship to retrieve.
+        include_deleted (bool, optional): If True, include soft-deleted friendships. Defaults to False.
 
     Returns:
         Friends: The friendship corresponding to the provided ID.
@@ -49,23 +62,29 @@ def get_friend_by_id_service(db: Session, friend_id: UUID):
     Raises:
         HTTPException: If the friendship with the given ID is not found (404 status code).
     """
-    friend = db.query(Friends).filter(Friends.id == friend_id).first()
+    query = db.query(Friends).filter(Friends.id == friend_id)
+    query = filter_deleted(query, include_deleted)
+    friend = query.first()
+
     if not friend:
         raise HTTPException(status_code=404, detail="Friend not found")
     return friend
 
 
-def get_all_friends_service(db: Session):
+def get_all_friends_service(db: Session, include_deleted: bool = False):
     """
     Retrieves all friendship records from the database.
 
     Args:
         db (Session): Database session for querying friendship records.
+        include_deleted (bool, optional): If True, include soft-deleted friendships. Defaults to False.
 
     Returns:
         List[Friends]: A list of all friendship records in the database.
     """
-    return db.query(Friends).all()
+    query = db.query(Friends)
+    query = filter_deleted(query, include_deleted)
+    return query.all()
 
 
 def update_friend_service(db: Session, friend_id: UUID, update_data: FriendsUpdate):
@@ -83,7 +102,10 @@ def update_friend_service(db: Session, friend_id: UUID, update_data: FriendsUpda
     Raises:
         HTTPException: If the friendship with the given ID is not found (404 status code).
     """
-    friend = db.query(Friends).filter(Friends.id == friend_id).first()
+    query = db.query(Friends).filter(Friends.id == friend_id)
+    query = filter_deleted(query, False)
+    friend = query.first()
+
     if not friend:
         raise HTTPException(status_code=404, detail="Friend not found")
 
@@ -96,25 +118,64 @@ def update_friend_service(db: Session, friend_id: UUID, update_data: FriendsUpda
     return friend
 
 
-def delete_friend_service(db: Session, friend_id: UUID):
+def delete_friend_service(db: Session, friend_id: UUID, hard_delete: bool = False):
     """
     Deletes a friendship record from the database.
 
     Args:
         db (Session): Database session for interacting with the database.
         friend_id (UUID): The unique identifier of the friendship to delete.
+        hard_delete (bool, optional): If True, physically delete the record. Defaults to False.
 
     Returns:
-        Friends: The deleted friendship record.
+        Friends: The deleted friendship record or a success message.
 
     Raises:
         HTTPException: If the friendship with the given ID is not found (404 status code).
     """
-    friend = db.query(Friends).filter(Friends.id == friend_id).first()
+    query = db.query(Friends).filter(Friends.id == friend_id)
+    query = filter_deleted(query, False)
+    friend = query.first()
+
     if not friend:
         raise HTTPException(status_code=404, detail="Friend not found")
 
-    db.delete(friend)
-    db.commit()
+    if hard_delete:
+        db.delete(friend)
+        db.commit()
+    else:
+        soft_delete(friend, db)
+
     return friend
 
+
+def restore_friend_service(db: Session, friend_id: UUID):
+    """
+    Restores a soft-deleted friendship.
+
+    Args:
+        db (Session): Database session for interacting with the database.
+        friend_id (UUID): The unique identifier of the friendship to restore.
+
+    Returns:
+        Friends: The restored friendship record.
+
+    Raises:
+        HTTPException:
+            - 404: If the friendship is not found.
+            - 400: If the friendship is not deleted.
+    """
+    friend = db.query(Friends).filter(Friends.id == friend_id).first()
+
+    if not friend:
+        raise HTTPException(status_code=404, detail="Friend not found")
+
+    if not friend.is_deleted:
+        raise HTTPException(status_code=400, detail="Friendship is not deleted")
+
+    friend.is_deleted = False
+    friend.deleted_at = None
+    db.commit()
+    db.refresh(friend)
+
+    return friend
