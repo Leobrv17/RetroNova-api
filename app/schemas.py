@@ -54,6 +54,7 @@ class GameBase(BaseModel):
     name: str
     description: Optional[str] = None
     nb_max_player: int
+    nb_min_player: int
 
 class GameCreate(GameBase):
     pass
@@ -62,6 +63,7 @@ class GameUpdate(BaseModel):
     name: Optional[str]
     description: Optional[str]
     nb_max_player: Optional[int]
+    nb_min_player: Optional[int]
 
 class GameResponse(GameBase):
     id: UUID

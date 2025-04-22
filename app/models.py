@@ -31,6 +31,7 @@ class Games(Base):
     name = Column(String(255), unique=True, nullable=False)
     description = Column(String(255), nullable=True)
     nb_max_player = Column(Integer, nullable=False)
+    nb_min_player = Column(Integer, nullable=False)
 
 
 # Table Arcade_machines
