@@ -7,7 +7,6 @@ from app.services.user import create_user_service, get_users_service, get_user_b
 from app.models import Users
 from typing import List
 from uuid import UUID
-from app.utils.db_utils import filter_deleted
 
 router = APIRouter()
 
@@ -162,57 +161,4 @@ def restore_user(user_id: UUID, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    return user
-
-
-@router.get("/firebase/{firebase_id}", response_model=UserResponse, tags=["Users"])
-def get_user_by_firebase_id(
-        firebase_id: str,
-        include_deleted: bool = Query(False, description="Inclure les utilisateurs supprimés"),
-        db: Session = Depends(get_db)
-):
-    """
-    Endpoint to retrieve a user by their Firebase ID.
-
-    Args:
-        firebase_id (str): The Firebase ID of the user to retrieve.
-        include_deleted (bool): If True, include soft-deleted users in the response
-        db (Session): Database session dependency.
-
-    Returns:
-        UserResponse: The retrieved user information.
-
-    Raises:
-        HTTPException: If the user is not found (404 status).
-    """
-    query = db.query(Users).filter(Users.firebase_id == firebase_id)
-    query = filter_deleted(query, include_deleted)
-    user = query.first()
-
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-
-
-@router.get("/public/{public_id}", response_model=UserResponse, tags=["Users"], name="Get User by Public ID")
-def get_user_by_public_id(
-        public_id: str,
-        db: Session = Depends(get_db)
-):
-    """
-    Endpoint pour récupérer un utilisateur par son ID public.
-
-    Args:
-        public_id (str): L'ID public de l'utilisateur à récupérer.
-        db (Session): Dépendance de session de base de données.
-
-    Returns:
-        UserResponse: Les informations de l'utilisateur trouvé.
-
-    Raises:
-        HTTPException: Si l'utilisateur n'est pas trouvé (404 status).
-    """
-    user = db.query(Users).filter(Users.publique_id == public_id, Users.is_deleted == False).first()
-    if user is None:
-        raise HTTPException(status_code=404, detail="Utilisateur non trouvé avec cet ID public")
     return user

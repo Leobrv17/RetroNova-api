@@ -4,17 +4,15 @@ from uuid import UUID
 from app.models import Friends
 from app.schemas import FriendsCreate, FriendsUpdate
 from app.utils.db_utils import filter_deleted, soft_delete
-from app.models import Users
 
 
-def create_friend_service(db: Session, friend_data: FriendsCreate, current_user_firebase_id: str = None):
+def create_friend_service(db: Session, friend_data: FriendsCreate):
     """
     Creates a new friendship record in the database.
 
     Args:
         db (Session): Database session to interact with the database.
         friend_data (FriendsCreate): The data to create a new friendship relationship.
-        current_user_firebase_id (str, optional): Firebase ID of the current user.
 
     Returns:
         Friends: The newly created friendship record.
@@ -22,22 +20,17 @@ def create_friend_service(db: Session, friend_data: FriendsCreate, current_user_
     Raises:
         HTTPException: If the friendship already exists (400 status code).
     """
-    # Si l'ID Firebase est fourni, récupérer l'ID de l'utilisateur correspondant
-    if current_user_firebase_id:
-        user = db.query(Users).filter(Users.firebase_id == current_user_firebase_id).first()
-        if user:
-            friend_data.friend_from_id = user.id
-
-    # Vérifier si l'amitié existe déjà
+    # Check if the friendship already exists
     query = db.query(Friends).filter(
         Friends.friend_from_id == friend_data.friend_from_id,
         Friends.friend_to_id == friend_data.friend_to_id
     )
-    query = filter_deleted(query, True)
+    query = filter_deleted(query, True)  # Inclure même les amitiés supprimées pour détecter les doublons
     existing_friend = query.first()
 
     if existing_friend:
         if existing_friend.is_deleted:
+            # Si l'amitié existe mais est supprimée, on la restaure
             existing_friend.is_deleted = False
             existing_friend.deleted_at = None
             db.commit()
@@ -46,6 +39,7 @@ def create_friend_service(db: Session, friend_data: FriendsCreate, current_user_
         else:
             raise HTTPException(status_code=400, detail="Friendship already exists")
 
+    # Create the new friendship relationship
     new_friend = Friends(**friend_data.model_dump())
     db.add(new_friend)
     db.commit()
