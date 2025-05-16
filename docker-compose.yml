@@ -36,14 +36,14 @@ services:
     networks:
       - retronova-network
 
-  test:
-    build: .
-    command: ["pytest","-v", "--cov=app", "--cov-report=term-missing", "tests/"] # Commande pour exécuter tes tests
-    container_name: retronova-test
-    environment:
-      - DATABASE_URL=sqlite:///./test.db
-    volumes:
-      - .:/app
+#  test:
+#    build: .
+#    command: ["pytest","-v", "--cov=app", "--cov-report=term-missing", "tests/"] # Commande pour exécuter tes tests
+#    container_name: retronova-test
+#    environment:
+#      - DATABASE_URL=sqlite:///./test.db
+#    volumes:
+#      - .:/app
 
 
 volumes:

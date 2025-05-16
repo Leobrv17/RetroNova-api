@@ -20,7 +20,7 @@ def create_friend_service(db: Session, friend_data: FriendsCreate):
     Raises:
         HTTPException: If the friendship already exists (400 status code).
     """
-    # Check if the friendship already exists
+    # Check if the friendship already exists (same direction)
     query = db.query(Friends).filter(
         Friends.friend_from_id == friend_data.friend_from_id,
         Friends.friend_to_id == friend_data.friend_to_id
@@ -38,6 +38,30 @@ def create_friend_service(db: Session, friend_data: FriendsCreate):
             return existing_friend
         else:
             raise HTTPException(status_code=400, detail="Friendship already exists")
+
+    # Check if a reverse friendship already exists (opposite direction)
+    reverse_query = db.query(Friends).filter(
+        Friends.friend_from_id == friend_data.friend_to_id,
+        Friends.friend_to_id == friend_data.friend_from_id
+    )
+    reverse_query = filter_deleted(reverse_query, True)  # Inclure même les amitiés supprimées
+    reverse_friendship = reverse_query.first()
+
+    if reverse_friendship:
+        # Une amitié dans le sens inverse existe déjà
+        if reverse_friendship.is_deleted:
+            # Si l'amitié inverse est supprimée, on pourrait la restaurer ou refuser
+            # Ici on choisit de refuser pour des raisons de cohérence
+            raise HTTPException(
+                status_code=400,
+                detail="A friendship request already exists in the opposite direction"
+            )
+        else:
+            # L'amitié inverse existe et n'est pas supprimée
+            raise HTTPException(
+                status_code=400,
+                detail="A friendship request already exists from the other user"
+            )
 
     # Create the new friendship relationship
     new_friend = Friends(**friend_data.model_dump())
@@ -179,3 +203,123 @@ def restore_friend_service(db: Session, friend_id: UUID):
     db.refresh(friend)
 
     return friend
+
+def get_friends_from_service(db: Session, user_id: UUID, include_deleted: bool = False):
+    """
+    Récupère toutes les amitiés initiées par un utilisateur spécifique.
+
+    Args:
+        db (Session): Session de base de données pour les requêtes.
+        user_id (UUID): L'identifiant unique de l'utilisateur qui a initié les demandes d'amitié.
+        include_deleted (bool, optional): Si True, inclut les amitiés supprimées logiquement.
+                                          Defaults to False.
+
+    Returns:
+        List[Friends]: Une liste de toutes les amitiés initiées par l'utilisateur.
+    """
+    query = db.query(Friends).filter(Friends.friend_from_id == user_id)
+    query = filter_deleted(query, include_deleted)
+    return query.all()
+
+
+def get_friends_to_service(db: Session, user_id: UUID, include_deleted: bool = False):
+    """
+    Récupère toutes les amitiés reçues par un utilisateur spécifique.
+
+    Args:
+        db (Session): Session de base de données pour les requêtes.
+        user_id (UUID): L'identifiant unique de l'utilisateur qui a reçu les demandes d'amitié.
+        include_deleted (bool, optional): Si True, inclut les amitiés supprimées logiquement.
+                                          Defaults to False.
+
+    Returns:
+        List[Friends]: Une liste de toutes les amitiés reçues par l'utilisateur.
+    """
+    query = db.query(Friends).filter(Friends.friend_to_id == user_id)
+    query = filter_deleted(query, include_deleted)
+    return query.all()
+
+
+def get_all_user_friends_service(db: Session, user_id: UUID, include_deleted: bool = False):
+    """
+    Récupère toutes les amitiés d'un utilisateur (initiées ET reçues).
+
+    Args:
+        db (Session): Session de base de données pour les requêtes.
+        user_id (UUID): L'identifiant unique de l'utilisateur.
+        include_deleted (bool, optional): Si True, inclut les amitiés supprimées logiquement.
+                                          Defaults to False.
+
+    Returns:
+        List[Friends]: Une liste de toutes les amitiés de l'utilisateur.
+    """
+    query = db.query(Friends).filter(
+        (Friends.friend_from_id == user_id) | (Friends.friend_to_id == user_id)
+    )
+    query = filter_deleted(query, include_deleted)
+    return query.all()
+
+
+def get_friends_by_status_service(
+        db: Session,
+        user_id: UUID,
+        accepted: bool = None,
+        declined: bool = None,
+        include_deleted: bool = False
+):
+    """
+    Récupère les amitiés d'un utilisateur filtrées par statut.
+
+    Args:
+        db (Session): Session de base de données pour les requêtes.
+        user_id (UUID): L'identifiant unique de l'utilisateur.
+        accepted (bool, optional): Filtrer par demandes acceptées.
+                                   None = pas de filtre sur ce champ.
+        declined (bool, optional): Filtrer par demandes refusées.
+                                   None = pas de filtre sur ce champ.
+        include_deleted (bool, optional): Si True, inclut les amitiés supprimées logiquement.
+                                          Defaults to False.
+
+    Returns:
+        List[Friends]: Une liste des amitiés filtrées.
+    """
+    # Requête de base pour toutes les amitiés impliquant cet utilisateur
+    query = db.query(Friends).filter(
+        (Friends.friend_from_id == user_id) | (Friends.friend_to_id == user_id)
+    )
+
+    # Filtrer par statut accepté
+    if accepted is not None:
+        query = query.filter(Friends.accept == accepted)
+
+    # Filtrer par statut refusé
+    if declined is not None:
+        query = query.filter(Friends.decline == declined)
+
+    # Filtre de suppression logique
+    query = filter_deleted(query, include_deleted)
+
+    return query.all()
+
+
+def get_pending_friends_service(db: Session, user_id: UUID, include_deleted: bool = False):
+    """
+    Récupère les demandes d'amitié en attente pour un utilisateur.
+
+    Args:
+        db (Session): Session de base de données pour les requêtes.
+        user_id (UUID): L'identifiant unique de l'utilisateur.
+        include_deleted (bool, optional): Si True, inclut les amitiés supprimées logiquement.
+                                          Defaults to False.
+
+    Returns:
+        List[Friends]: Une liste des demandes d'amitié en attente.
+    """
+    query = db.query(Friends).filter(
+        (Friends.friend_to_id == user_id) &  # Demandes reçues
+        (Friends.accept == False) &  # Non acceptées
+        (Friends.decline == False)  # Non refusées
+    )
+
+    query = filter_deleted(query, include_deleted)
+    return query.all()

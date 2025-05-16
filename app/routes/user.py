@@ -7,6 +7,7 @@ from app.services.user import create_user_service, get_users_service, get_user_b
 from app.models import Users
 from typing import List
 from uuid import UUID
+from app.utils.db_utils import filter_deleted, soft_delete
 
 router = APIRouter()
 
@@ -160,5 +161,36 @@ def restore_user(user_id: UUID, db: Session = Depends(get_db)):
     user.deleted_at = None
     db.commit()
     db.refresh(user)
+
+    return user
+
+
+# app/routes/user.py (ajoutez ce nouvel endpoint)
+@router.get("/firebase/{firebase_id}", response_model=UserResponse, tags=["Users"], name="Get User by Firebase ID")
+def get_user_by_firebase_id(
+        firebase_id: str,
+        include_deleted: bool = Query(False, description="Inclure les utilisateurs supprimés"),
+        db: Session = Depends(get_db)
+):
+    """
+    Endpoint pour récupérer un utilisateur par son identifiant Firebase.
+
+    Args:
+        firebase_id (str): L'identifiant Firebase de l'utilisateur à récupérer.
+        include_deleted (bool): Si True, récupérer même si l'utilisateur est supprimé
+        db (Session): Session de base de données.
+
+    Returns:
+        UserResponse: Les informations de l'utilisateur récupéré.
+
+    Raises:
+        HTTPException: Si l'utilisateur n'est pas trouvé (404 status).
+    """
+    query = db.query(Users).filter(Users.firebase_id == firebase_id)
+    query = filter_deleted(query, include_deleted)
+    user = query.first()
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
 
     return user

@@ -89,6 +89,7 @@ def get_user_by_id_service(db: Session, user_id: UUID, include_deleted: bool = F
 def update_user_service(user_id: UUID, user_data: UserCreate, db: Session):
     """
     Service to update an existing user's information.
+    Only updates first_name and last_name fields, preserving other fields.
 
     Args:
         user_id (UUID): The unique identifier of the user to update.
@@ -109,11 +110,10 @@ def update_user_service(user_id: UUID, user_data: UserCreate, db: Session):
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Mettre à jour uniquement les champs first_name et last_name
     db_user.first_name = user_data.first_name
     db_user.last_name = user_data.last_name
-    db_user.nb_ticket = user_data.nb_ticket
-    db_user.bar = user_data.bar
-    db_user.firebase_id = user_data.firebase_id
+    # Ne pas mettre à jour nb_ticket, bar, firebase_id
 
     db.commit()
     db.refresh(db_user)
