@@ -12,6 +12,7 @@ app = FastAPI()
 
 # Définir les origines autorisées pour le CORS
 origins = [
+    "http://localhost:4200", # Permet les requêtes de l'application frontend Angular qui tourne sur le port 4200
     "http://localhost",  # Permet les requêtes depuis localhost
     "http://localhost:3000",  # Exemple pour une application frontend React qui tourne sur le port 3000
     "https://ton-domaine.com",  # Ajoute d'autres domaines si nécessaire
@@ -25,6 +26,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Permet toutes les méthodes HTTP (GET, POST, etc.)
     allow_headers=["*"],  # Permet tous les en-têtes HTTP
+    expose_headers=["*"],  # Permet tous les en-têtes d'exposition
+    # max_age=3600,  # Durée de mise en cache des pré-requêtes CORS
+    # allow_origin_regex="https?://.*",  # Autoriser toutes les origines qui commencent par http ou https
+    # allow_headers_regex=".*",  # Autoriser tous les en-têtes
 )
 
 app.include_router(user.router, prefix="/users", tags=["Users"])
